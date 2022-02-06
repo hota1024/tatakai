@@ -14,6 +14,7 @@ export const Button = styled('button', {
   color: '#202020',
   cursor: 'pointer',
   transition: 'all 100ms ease',
+  textDecoration: 'none',
   variants: {
     variant: {
       default: {

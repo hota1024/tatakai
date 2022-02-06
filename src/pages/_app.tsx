@@ -5,6 +5,7 @@ import type { AppProps } from 'next/app'
 const globalStyles = globalCss({
   body: {
     fontFamily: 'Noto Sans JP',
+    color: '#202020',
   },
   '*': {
     margin: 0,

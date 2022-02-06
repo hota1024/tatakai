@@ -1,4 +1,5 @@
 import { globalCss } from '@/stitches.config'
+import { AnimatePresence, motion } from 'framer-motion'
 import type { AppProps } from 'next/app'
 
 const globalStyles = globalCss({
@@ -12,12 +13,14 @@ const globalStyles = globalCss({
   },
 })
 
-function MyApp({ Component, pageProps }: AppProps) {
+function MyApp({ Component, pageProps, router }: AppProps) {
   globalStyles()
 
   return (
     <>
-      <Component {...pageProps} />
+      <AnimatePresence exitBeforeEnter>
+        <Component {...pageProps} key={router.route} />
+      </AnimatePresence>
     </>
   )
 }

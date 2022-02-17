@@ -33,7 +33,7 @@ export const Lobby: React.VFC<LobbyProps> = (props) => {
                 <AreaButtonContent>
                   お題を選んで
                   <br />
-                  対戦相手を待とう
+                  AI同士を戦わせよう
                 </AreaButtonContent>
               </AreaButton>
             </Link>
@@ -45,6 +45,12 @@ export const Lobby: React.VFC<LobbyProps> = (props) => {
                   <br />
                   ここから参加してね
                 </AreaButtonContent>
+              </AreaButton>
+            </Link>
+            <Link href="/vs-ai" passHref>
+              <AreaButton as="a" css={{ margin: '4px' }}>
+                <AreaButtonLabel>🔥 AIと対戦する</AreaButtonLabel>
+                <AreaButtonContent>あなた vs AI</AreaButtonContent>
               </AreaButton>
             </Link>
           </Box>

@@ -2015,6 +2015,11 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha1-Sr6/7tdUHywnrPspvbvRXI1bpPc=
 
+next-api-handler@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/next-api-handler/-/next-api-handler-0.2.2.tgz#3078ef1e156e2f5cba9f5ba82542ab7235a1a983"
+  integrity sha512-8dm4xpVTZOHt9VJ8zYC1dHME8WS6QwR+AGvlyB1gklVfBVXeZVUGO6Aj6xVLQVxlTBGlVnppkvqKTOpH63lVYA==
+
 next@12.0.4:
   version "12.0.4"
   resolved "https://registry.yarnpkg.com/next/-/next-12.0.4.tgz#096578b320f0faf0bd51798decb39aaf00052efe"

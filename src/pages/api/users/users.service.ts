@@ -8,7 +8,6 @@ let users: User[] = []
 
 export const findUserOrThrow = (id: string) => {
   const user = users.find((user) => user.id === id)
-  console.log(user?.id)
 
   if (!user) {
     throw new NotFoundException('ユーザが見つかりませんでした')
@@ -54,7 +53,6 @@ setInterval(() => {
     if (Date.now() - user.lastPingAt < lifetime) {
       return true
     }
-    console.log(`[users] deleted ${user.name} ${user.id}`)
 
     return false
   })

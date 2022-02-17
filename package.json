@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@stitches/react": "^1.2.6",
+    "@types/uuid": "^8.3.4",
     "axios": "^0.26.0",
     "framer-motion": "^6.2.4",
     "next": "12.0.4",

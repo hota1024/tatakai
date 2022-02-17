@@ -1,7 +1,17 @@
 import { Room } from '@/types/Room'
-import { BadRequestException } from 'next-api-handler'
+import { BadRequestException, NotFoundException } from 'next-api-handler'
 
 const rooms: Room[] = []
+
+export const findRoomOrThrow = (id: string) => {
+  const room = rooms.find((room) => room.id === id)
+
+  if (!room) {
+    throw new NotFoundException('部屋が見つかりませんでした')
+  }
+
+  return room
+}
 
 export const createRoom = (data: Omit<Room, 'id' | 'createdAt'>) => {
   if (!data.theme || data.theme !== 'handwritten-numbers') {

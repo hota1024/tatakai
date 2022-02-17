@@ -1,3 +1,5 @@
+import { User } from './User'
+
 export const roomThemes = ['handwritten-numbers', 'cats-and-dogs'] as const
 
 /**
@@ -13,4 +15,17 @@ export type Room = {
   theme: RoomTheme
   isPublic: boolean
   createdAt: number
+  hostId: User['id']
+  participantId: User['id']
+}
+
+/**
+ * RoomRes type.
+ */
+export type RoomRes = Omit<Room, 'hostId' | 'participantId'>
+
+export const genRoomRes = (room: Room): RoomRes => {
+  const { hostId, participantId, ...rest } = room
+
+  return rest
 }

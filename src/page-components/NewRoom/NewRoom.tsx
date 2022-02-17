@@ -11,7 +11,12 @@ import { upFadeIn } from '@/utils/transition'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/Button'
 import { useState } from 'react'
-import { RoomTheme } from '@/types/Room'
+import { RoomRes, RoomTheme } from '@/types/Room'
+import { useRouter } from 'next/router'
+import axios from 'axios'
+import { SuccessApiResponse } from 'next-api-handler'
+import { useAtom } from 'jotai'
+import { userAtom } from '@/pages/atoms/user'
 
 const useSelectButton = <T,>(defaultValue: T) => {
   const [value, setValue] = useState(defaultValue)
@@ -52,7 +57,29 @@ export const NewRoom: React.VFC<NewRoomProps> = (props) => {
   const [theme, themeSelectProps] = useSelectButton<RoomTheme>(
     'handwritten-numbers'
   )
+  const router = useRouter()
+  const [user] = useAtom(userAtom)
   const [isPublic, isPublicProps] = useSelectButton(false)
+  const [loading, setLoading] = useState(false)
+
+  const create = async () => {
+    setLoading(false)
+    if (!user) {
+      return
+    }
+
+    const { data } = await axios.post<SuccessApiResponse<RoomRes>>(
+      '/api/rooms',
+      {
+        theme,
+        isPublic,
+        hostId: user.id,
+      }
+    )
+
+    await router.push(`/rooms/${data.data.id}`)
+    setLoading(true)
+  }
 
   return (
     <ExitAnimationable>
@@ -95,7 +122,9 @@ export const NewRoom: React.VFC<NewRoomProps> = (props) => {
           </Box>
           <h3>3. 準備はOK?</h3>
           <Box css={{ margin: '16px 0' }}>
-            <Button variant="contained">➕ 部屋を作成！</Button>
+            <Button variant="contained" onClick={create} disabled={loading}>
+              ➕ 部屋を作成！
+            </Button>
           </Box>
         </motion.div>
       </FullHeightContainer>

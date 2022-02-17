@@ -1,5 +1,7 @@
+import { Player } from '@/types/Player'
 import { Room } from '@/types/Room'
 import { BadRequestException, NotFoundException } from 'next-api-handler'
+import { findUserOrThrow } from '../users/users.service'
 
 const rooms: Room[] = []
 
@@ -33,6 +35,32 @@ export const createRoom = (data: Omit<Room, 'id' | 'createdAt'>) => {
   rooms.push(room)
 
   return room
+}
+
+export const updateRoom = (id: string, data: Partial<Room>) => {
+  const room = findRoomOrThrow(id)
+
+  Object.assign(room, data)
+
+  return room
+}
+
+export const joinRoom = (roomId: string, userId: string) => {
+  const room = findRoomOrThrow(roomId)
+  const user = findUserOrThrow(userId)
+  const player: Player = {
+    name: user.name,
+    isHost: room.hostId === userId,
+    isUploaded: false,
+  }
+
+  if (player.isHost) {
+    updateRoom(roomId, { host: player })
+  } else {
+    updateRoom(roomId, { participant: player })
+  }
+
+  return { room, player } as const
 }
 
 const genId = () => {

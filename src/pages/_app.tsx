@@ -7,7 +7,7 @@ import { useAtom } from 'jotai'
 import { SuccessApiResponse } from 'next-api-handler'
 import type { AppProps } from 'next/app'
 import { useCallback, useEffect } from 'react'
-import { userAtom } from './atoms/user'
+import { userAtom } from '../atoms/user'
 
 const globalStyles = globalCss({
   body: {
@@ -44,7 +44,7 @@ export default function MyApp({ Component, pageProps, router }: AppProps) {
     axios.post(`/api/users/${user.id}/heartbeat`).catch(() => {
       createUser()
     })
-  }, 3000)
+  }, 20000)
 
   return (
     <>

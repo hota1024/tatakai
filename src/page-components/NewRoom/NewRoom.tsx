@@ -16,7 +16,7 @@ import { useRouter } from 'next/router'
 import axios from 'axios'
 import { SuccessApiResponse } from 'next-api-handler'
 import { useAtom } from 'jotai'
-import { userAtom } from '@/pages/atoms/user'
+import { userAtom } from '@/atoms/user'
 
 const useSelectButton = <T,>(defaultValue: T) => {
   const [value, setValue] = useState(defaultValue)

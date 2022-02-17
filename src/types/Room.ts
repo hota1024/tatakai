@@ -1,3 +1,4 @@
+import { Player } from './Player'
 import { User } from './User'
 
 export const roomThemes = ['handwritten-numbers', 'cats-and-dogs'] as const
@@ -15,8 +16,22 @@ export type Room = {
   theme: RoomTheme
   isPublic: boolean
   createdAt: number
+  host?: Player
+  participant?: Player
   hostId: User['id']
   participantId: User['id']
+}
+
+export const roomThemeToText = (theme: RoomTheme) => {
+  if (theme === 'cats-and-dogs') {
+    return 'イヌ?ネコ?'
+  }
+
+  if (theme === 'handwritten-numbers') {
+    return '手書き数字'
+  }
+
+  return ''
 }
 
 /**

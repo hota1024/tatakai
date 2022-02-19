@@ -12,6 +12,8 @@ import { useAtom } from 'jotai'
 import { SuccessApiResponse } from 'next-api-handler'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useState } from 'react'
+import { Button } from '@/components/Button'
+import { Textfield } from '@/components/Textfield'
 
 /**
  * Room props.
@@ -26,6 +28,9 @@ export const Room: React.VFC<RoomProps> = (props) => {
   const [user] = useAtom(userAtom)
   const [player, setPlayer] = useState<Player>()
   const [enemy, setEnemey] = useState<Player>()
+  const [modelURL, setModelURL] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string>()
   const router = useRouter()
   const roomId = router.query.id
 
@@ -47,9 +52,11 @@ export const Room: React.VFC<RoomProps> = (props) => {
 
       if (player) {
         if (player.isHost) {
+          setPlayer(room.host)
           setEnemey(room.participant)
         } else {
           setEnemey(room.host)
+          setPlayer(room.participant)
         }
       }
     } catch (e) {
@@ -95,6 +102,37 @@ export const Room: React.VFC<RoomProps> = (props) => {
     return <FullHeightContainer>準備しています...</FullHeightContainer>
   }
 
+  const onReadyClick = async () => {
+    setLoading(true)
+    setError(undefined)
+    try {
+      await axios.post(`/api/rooms/${roomId}/model`, {
+        userId: user.id,
+        roomId,
+        modelURL,
+      })
+      fetchRoom()
+    } catch (e) {
+      if (axios.isAxiosError(e)) {
+        setError(e.message)
+      }
+    }
+    setLoading(false)
+  }
+
+  const divider = (
+    <Box
+      css={{
+        margin: '16px',
+        border: '1px solid #e0e0e0',
+        width: '100%',
+        maxWidth: '100px',
+      }}
+    />
+  )
+
+  const gameReady = player.modelURL && enemy?.modelURL
+
   return (
     <ExitAnimationable>
       <FullHeightContainer>
@@ -102,29 +140,60 @@ export const Room: React.VFC<RoomProps> = (props) => {
         <h2 style={{ color: '#606060', fontSize: '1rem' }}>
           招待コード: {room.id}
         </h2>
-        <Box
-          css={{
-            margin: '16px',
-            border: '1px solid #e0e0e0',
-            width: '100%',
-            maxWidth: '100px',
-          }}
-        />
+        {divider}
         <h3>
-          <Label color="red">あなた</Label>
-          {player.name}
+          <Label color="red">あなた{player.isHost && '(ホスト)'}</Label>
+          {player.name}({player.modelURL ? '準備OK' : '準備中...'})
         </h3>
         <h3>vs</h3>
         <h3>
           {enemy ? (
             <>
-              <Label color="blue">対戦相手</Label>
-              {enemy.name}
+              <Label color="blue">対戦相手{enemy.isHost && '(ホスト)'}</Label>
+              {enemy.name}({enemy.modelURL ? '準備OK' : '準備中...'})
             </>
           ) : (
             '対戦相手を待っています...'
           )}
         </h3>
+        {divider}
+        <Box css={{ maxWidth: 500 }}>
+          <label>
+            Teachable Machine で生成したモデルの URL を入力してね。
+            <Textfield
+              placeholder="https://teachablemachine.withgoogle.com/models/[...]"
+              value={modelURL}
+              onChange={(e) => setModelURL(e.target.value)}
+              disabled={loading}
+            />
+          </label>
+          <Box css={{ color: '#f44336' }}>{error}</Box>
+          <Box css={{ margin: '16px 0' }} />
+          <Button
+            variant={gameReady ? 'contained' : 'default'}
+            css={{ width: '100%' }}
+            disabled={loading}
+            onClick={onReadyClick}
+          >
+            {loading ? '読込中...' : player.modelURL ? '更新' : '準備OK?'}
+          </Button>
+        </Box>
+        {gameReady &&
+          (player.isHost ? (
+            <>
+              {divider}
+              <Button css={{ width: '100%' }} variant="contained">
+                対戦開始
+              </Button>
+            </>
+          ) : (
+            <>
+              {divider}
+              <Box css={{ color: '#2196F3' }}>
+                ホストが対戦を開始するまでお待ち下さい...
+              </Box>
+            </>
+          ))}
       </FullHeightContainer>
     </ExitAnimationable>
   )

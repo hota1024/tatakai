@@ -1,5 +1,7 @@
+import { joinURL } from 'ufo'
 import { Player } from '@/types/Player'
 import { Room } from '@/types/Room'
+import axios from 'axios'
 import { BadRequestException, NotFoundException } from 'next-api-handler'
 import { findUserOrThrow } from '../users/users.service'
 
@@ -51,7 +53,6 @@ export const joinRoom = (roomId: string, userId: string) => {
   const player: Player = {
     name: user.name,
     isHost: room.hostId === userId,
-    isUploaded: false,
   }
 
   if (player.isHost) {
@@ -61,6 +62,40 @@ export const joinRoom = (roomId: string, userId: string) => {
   }
 
   return { room, player } as const
+}
+
+export const setPlayerModel = (
+  roomId: string,
+  userId: string,
+  modelURL: string
+) => {
+  const room = findRoomOrThrow(roomId)
+
+  const isUserHost = room.hostId === userId
+  const hostPlayer = room.host
+  const participantPlayer = room.participant
+
+  if (isUserHost && hostPlayer) {
+    hostPlayer.modelURL = modelURL
+  } else if (participantPlayer) {
+    participantPlayer.modelURL = modelURL
+  }
+}
+
+export const validateModelURL = async (url: string): Promise<boolean> => {
+  if (!url.startsWith('https://teachablemachine.withgoogle.com/models/')) {
+    throw new BadRequestException('正しいmodelURLを指定してください')
+  }
+
+  try {
+    await axios.head(joinURL(url, 'model.json'))
+    await axios.head(joinURL(url, 'metadata.json'))
+    await axios.head(joinURL(url, 'model.weights.bin'))
+  } catch {
+    throw new BadRequestException('モデルの情報を取得できませんでした')
+  }
+
+  return true
 }
 
 const genId = () => {

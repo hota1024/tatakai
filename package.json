@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@stitches/react": "^1.2.6",
+    "@teachablemachine/image": "^0.8.5",
     "@tensorflow/tfjs": "^3.13.0",
     "@types/uuid": "^8.3.4",
     "axios": "^0.26.0",

@@ -170,7 +170,7 @@ export const Room: React.VFC<RoomProps> = (props) => {
           <Box css={{ color: '#f44336' }}>{error}</Box>
           <Box css={{ margin: '16px 0' }} />
           <Button
-            variant={gameReady ? 'contained' : 'default'}
+            variant={gameReady ? 'default' : 'contained'}
             css={{ width: '100%' }}
             disabled={loading}
             onClick={onReadyClick}
@@ -180,19 +180,17 @@ export const Room: React.VFC<RoomProps> = (props) => {
         </Box>
         {gameReady &&
           (player.isHost ? (
-            <>
+            <Box>
               {divider}
-              <Button css={{ width: '100%' }} variant="contained">
-                対戦開始
-              </Button>
-            </>
+              <Button variant="contained">対戦開始</Button>
+            </Box>
           ) : (
-            <>
+            <Box>
               {divider}
               <Box css={{ color: '#2196F3' }}>
                 ホストが対戦を開始するまでお待ち下さい...
               </Box>
-            </>
+            </Box>
           ))}
       </FullHeightContainer>
     </ExitAnimationable>

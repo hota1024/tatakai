@@ -2,7 +2,11 @@ import { joinURL } from 'ufo'
 import { Player } from '@/types/Player'
 import { Room } from '@/types/Room'
 import axios from 'axios'
-import { BadRequestException, NotFoundException } from 'next-api-handler'
+import {
+  BadRequestException,
+  NotFoundException,
+  UnauthorizedException,
+} from 'next-api-handler'
 import { findUserOrThrow } from '../users/users.service'
 
 const rooms: Room[] = []
@@ -30,6 +34,7 @@ export const createRoom = (data: Omit<Room, 'id' | 'createdAt'>) => {
 
   const room: Room = {
     ...data,
+    wasStarted: false,
     createdAt: Date.now(),
     id: genId(),
   }
@@ -45,6 +50,16 @@ export const updateRoom = (id: string, data: Partial<Room>) => {
   Object.assign(room, data)
 
   return room
+}
+
+export const startRoomBattle = (id: string, userId: string) => {
+  const room = findRoomOrThrow(id)
+
+  if (room.hostId !== userId) {
+    throw new UnauthorizedException('対戦を開始する権限がありません')
+  }
+
+  room.wasStarted = true
 }
 
 export const joinRoom = (roomId: string, userId: string) => {

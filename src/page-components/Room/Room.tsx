@@ -14,6 +14,7 @@ import { useRouter } from 'next/router'
 import { useCallback, useEffect, useState } from 'react'
 import { Button } from '@/components/Button'
 import { Textfield } from '@/components/Textfield'
+import { HandwrittenNumberGame, JudgeResult, JudgeTurnResult } from '@/tf/Game'
 
 /**
  * Room props.
@@ -31,6 +32,12 @@ export const Room: React.VFC<RoomProps> = (props) => {
   const [modelURL, setModelURL] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string>()
+  const [wasStarted, setWasStarted] = useState<boolean>()
+  const [gaming, setGaming] = useState(false)
+  const [judge, setJudge] = useState<JudgeResult>()
+  const [isDraw, setIsDraw] = useState(false)
+  const [isWin, setIsWin] = useState(false)
+  const [judges, setJudges] = useState<JudgeTurnResult[]>([])
   const router = useRouter()
   const roomId = router.query.id
 
@@ -49,6 +56,7 @@ export const Room: React.VFC<RoomProps> = (props) => {
       } = await axios.get<SuccessApiResponse<RoomRes>>(`/api/rooms/${roomId}`)
 
       setRoom(room)
+      setWasStarted(room.wasStarted)
 
       if (player) {
         if (player.isHost) {
@@ -90,6 +98,30 @@ export const Room: React.VFC<RoomProps> = (props) => {
   }, [roomId, user, router])
 
   useEffect(() => {
+    if (wasStarted) {
+      ;(async () => {
+        setGaming(true)
+        if (!enemy || !player) {
+          return
+        }
+        const game = new HandwrittenNumberGame(player, enemy)
+        game.onJudgeTurn = (judge) => {
+          setJudges((judges) => [...judges, judge])
+        }
+
+        const result = await game.judge()
+        setIsDraw(result.draw === true)
+        setIsWin(result.winner?.isHost === player.isHost)
+        setJudge(result)
+        console.log(result, player, enemy)
+
+        setGaming(false)
+      })()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wasStarted])
+
+  useEffect(() => {
     fetchRoom().then(joinRoom)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -118,6 +150,15 @@ export const Room: React.VFC<RoomProps> = (props) => {
       }
     }
     setLoading(false)
+  }
+
+  const battleStart = async () => {
+    setLoading(true)
+    await axios.post(`/api/rooms/${roomId}/start`, {
+      userId: user.id,
+    })
+    setLoading(false)
+    setGaming(true)
   }
 
   const divider = (
@@ -178,20 +219,42 @@ export const Room: React.VFC<RoomProps> = (props) => {
             {loading ? '読込中...' : player.modelURL ? '更新' : '準備OK?'}
           </Button>
         </Box>
+        {divider}
         {gameReady &&
           (player.isHost ? (
             <Box>
-              {divider}
-              <Button variant="contained">対戦開始</Button>
+              <Button
+                variant="contained"
+                disabled={gaming || loading}
+                onClick={battleStart}
+              >
+                {gaming ? '...' : loading ? '準備中です...' : '対戦開始'}
+              </Button>
             </Box>
           ) : (
             <>
-              {divider}
               <Box css={{ color: '#2196F3' }}>
-                ホストが対戦を開始するまでお待ち下さい...
+                {wasStarted
+                  ? '準備中です...'
+                  : 'ホストが対戦を開始するまでお待ち下さい...'}
               </Box>
             </>
           ))}
+        <p>{judge && (isDraw ? '引き分け' : isWin ? '勝ち' : '負け')}</p>
+        <ul>
+          {judges.map((judge, key) => (
+            <li key={key}>
+              <img src={judge.image.image.src} alt={judge.image.label} />
+              <span>
+                {judge.draw
+                  ? '引き分け!'
+                  : judge.winner?.name +
+                    'の勝ち！' +
+                    `(${judge.winnerProbability} > ${judge.loserProbability})`}
+              </span>
+            </li>
+          ))}
+        </ul>
       </FullHeightContainer>
     </ExitAnimationable>
   )

@@ -20,6 +20,7 @@ export type Room = {
   participant?: Player
   hostId: User['id']
   participantId: User['id']
+  wasStarted: boolean
 }
 
 export const roomThemeToText = (theme: RoomTheme) => {
